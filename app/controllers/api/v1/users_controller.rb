@@ -11,7 +11,6 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def index
-    require'pry';binding.pry
     connection = Faraday.new(url: 'https://api.themoviedb.org/3')
     response = connection.get("/movie/popular?api_key=#{TMDB_API_KEY}")
 
