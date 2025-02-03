@@ -1,7 +1,7 @@
 class Api::V1::UsersController < ApplicationController
   def create
     user = User.new(user_params)
-    require'pry'; binding.pry
+    # require'pry';binding.pry
     if user.save
       render json: UserSerializer.new(user), status: :created
     else
@@ -10,6 +10,7 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def index
+
     render json: UserSerializer.format_user_list(User.all)
   end
 
