@@ -14,6 +14,7 @@ class Api::V1::UsersController < ApplicationController
     connection = Faraday.new(url: 'https://api.themoviedb.org/3')
     response = connection.get("/movie/popular?api_key=#{TMDB_MOVIES_API_KEY}")
 
+    require'pry';binding.pry;
     if response.success?
       render json: UserSerializer.format_user_list(User.all)
     else
