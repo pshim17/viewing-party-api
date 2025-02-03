@@ -1,5 +1,5 @@
 class Api::V1::UsersController < ApplicationController
-  TMDB_MOVIES_API_KEY = 'f984e0a1bf9bb60517d17e2dabb7e731'
+  TMDB_MOVIES_API_KEY = "f984e0a1bf9bb60517d17e2dabb7e731";
 
   def create
     user = User.new(user_params)
@@ -12,13 +12,13 @@ class Api::V1::UsersController < ApplicationController
 
   def index
     connection = Faraday.new(url: 'https://api.themoviedb.org/3')
-    response = connection.get("/movie/popular?api_key=#{TMDB_MOVIES_API_KEY}")
-
-    require'pry';binding.pry;
-    if response.success?
-      render json: UserSerializer.format_user_list(User.all)
+    response = connection.get('/search/movie')
+  
+    if response.status == 200
+      tmdb_data = JSON.parse(response.body)
+      render json: tmdb_data
     else
-      render json: { error: "Something went wrong" }, status: 400
+      render json: { error: "Something went wrong", details: response.body }, status: response.status
     end
   end
 
