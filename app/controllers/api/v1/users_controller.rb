@@ -1,5 +1,5 @@
 class Api::V1::UsersController < ApplicationController
-  TMDB_Movies_API_KEY = 'f984e0a1bf9bb60517d17e2dabb7e731'
+  TMDB_MOVIES_API_KEY = 'f984e0a1bf9bb60517d17e2dabb7e731'
 
   def create
     user = User.new(user_params)
