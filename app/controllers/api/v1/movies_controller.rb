@@ -23,7 +23,6 @@ class Api::V1::MoviesController < ApplicationController
   end
 
   def search 
-    require'pry';binding.pry
     conn = Faraday.new(url: "https://api.themoviedb.org/3")
     query = params[:query]
 
@@ -36,8 +35,6 @@ class Api::V1::MoviesController < ApplicationController
       faraday.params["query"] = query
     end
     
-    require'pry';binding.pry
-
     if response.success?
       searched_movies = JSON.parse(response.body)["results"].first(20).map do |movie|
         {
