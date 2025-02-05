@@ -1,5 +1,5 @@
 class Api::V1::MoviesController < ApplicationController
-  def index
+  def index 
     conn = Faraday.new(url: "https://api.themoviedb.org/3")
     
     response = conn.get("movie/top_rated") do |faraday|
@@ -7,7 +7,7 @@ class Api::V1::MoviesController < ApplicationController
     end
     
     if response.success?
-      top_rated_movies = JSON.parse(response.body)["results"].take(20).map do |movie|
+      top_rated_movies = JSON.parse(response.body)["results"].first(20).map do |movie|
         {
           "id": movie["id"],
           "type": "movie",
@@ -19,7 +19,7 @@ class Api::V1::MoviesController < ApplicationController
       end
       render json: { data: top_rated_movies }, status: :ok
     else
-      render json: { error: "Failed to fetch movies" }, status: :bad_gateway
+      render json: { error: "Failed to fetch top 20 rated movies" }, status: :bad_gateway
     end
   end
 end
