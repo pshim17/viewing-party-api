@@ -17,7 +17,6 @@ class Api::V1::MoviesController < ApplicationController
           } 
         }
       end
-
       render json: { data: top_rated_movies }, status: :ok
     else
       render json: { error: "Failed to fetch movies" }, status: :bad_gateway
