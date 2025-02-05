@@ -47,8 +47,6 @@ class Api::V1::MoviesController < ApplicationController
         }
       end
       render json: { data: searched_movies }, status: :ok
-    else
-      render json: { error: "Failed to fetch movies by search terms." }, status: :bad_gateway
     end
   end
 end
