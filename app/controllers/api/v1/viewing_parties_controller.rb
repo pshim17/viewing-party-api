@@ -6,6 +6,7 @@ class Api::V1::ViewingPartiesController < ApplicationController
 
     if viewing_party.save
       params[:invitees].map do |invitee|
+        require'pry';binding.pry
         inviteeInfo = {};
 
         viewer = User.find(invitee)
@@ -18,7 +19,6 @@ class Api::V1::ViewingPartiesController < ApplicationController
         end
       end
     end
-
 
     render json: { 
       data: {
@@ -33,7 +33,7 @@ class Api::V1::ViewingPartiesController < ApplicationController
           "invitees": inviteesArray
         }
       } 
-    }, status: :ok
+    }, status: :created
   end
 
   private
