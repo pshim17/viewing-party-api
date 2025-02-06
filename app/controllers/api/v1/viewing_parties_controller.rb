@@ -1,14 +1,12 @@
 class Api::V1::ViewingPartiesController < ApplicationController
-  def create
-    host = User.find_by(id: params[:host_id])
-
-    if host.blank?
-      render json: { error: "Host was not found" }, status: :not_found 
-    end
-
+  def create    
     viewing_party = ViewingParty.new(viewing_party_params)
-    viewing_party.host = host
+    
+  end
 
-    require'pry';binding.pry
+  private
+
+  def viewing_party_params
+    params.require(:viewing_party).permit(:name, :start_time, :end_time, :movie_id, :movie_title, invitees: [])
   end
 end
