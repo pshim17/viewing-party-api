@@ -13,26 +13,34 @@ class Api::V1::ViewingPartiesController < ApplicationController
     if viewing_party_duration < movie_runtime
       return render json: { message: "Party duration cannot be less than movie runtime", status: 422 }
     end
-
+    
     if viewing_party.save
       if params[:invitees].present?
+        host = params[:invitees].first
+
+        if User.exists?(id: host)
+          UserViewingParty.create(user_id: host, viewing_party_id: viewing_party.id, host: true)
+        end
+
         params[:invitees].map do |invitee|
           inviteeInfo = {};
+
+          if invitee == host
+            next
+          end
 
           viewer = User.find_by(id: invitee)
 
           if viewer
+            UserViewingParty.create(user_id: viewer.id, viewing_party_id: viewing_party.id, host: false)
+
             inviteeInfo[:id] = viewer.id
             inviteeInfo[:name] = viewer.name
             inviteeInfo[:username] = viewer.username
 
-            if !viewing_party.users.include?(viewer)
-              inviteesArray.push(inviteeInfo)
-            end
+            inviteesArray.push(inviteeInfo)
           end
         end
-      else
-        inviteesArray = [];
       end
 
       render json: { 

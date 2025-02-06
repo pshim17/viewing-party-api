@@ -1,6 +1,6 @@
 class User < ApplicationRecord
-  has_many :create_joined_user_viewing_parties
-  has_many :viewing_parties, through: :create_joined_user_viewing_parties
+  has_many :user_viewing_parties
+  has_many :viewing_parties, through: :user_viewing_parties
 
   validates :name, presence: true
   validates :username, presence: true, uniqueness: true
