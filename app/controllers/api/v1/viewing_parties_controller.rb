@@ -54,6 +54,11 @@ class Api::V1::ViewingPartiesController < ApplicationController
     end
   end
 
+  def invitees
+    require'pry';binding.pry
+    viewing_party = ViewingParty.find_by(id: params[:viewing_party_id])
+  end
+
   private
 
   def viewing_party_params
