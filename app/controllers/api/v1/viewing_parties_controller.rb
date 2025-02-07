@@ -1,10 +1,23 @@
 require './app/gateways/viewing_party_gateway'
 
 class Api::V1::ViewingPartiesController < ApplicationController
-  def create    
+  def create
+    required_fields = [:name, :start_time, :end_time, :movie_id, :movie_title]
+    missing_fields = []
     inviteesArray = [];
-    viewing_party = ViewingParty.new(viewing_party_params)
+
+    viewing_party = ViewingParty.new(viewing_party_params.except(:invitees))
     movie_runtime = ViewingPartyGateway.get_movie_runtime(viewing_party["movie_id"])
+
+    required_fields.each do |required_field| 
+      if params[required_field].blank?
+        missing_fields.push(required_field)
+      end
+    end
+
+    if missing_fields.any?
+      return render json: { message: "Missing required field(s): #{missing_fields.join(', ')}", status: 400 }, status: :bad_request
+    end
 
     viewing_party_duration = (viewing_party.end_time.to_i - viewing_party.start_time.to_i) / 60
     
@@ -65,7 +78,7 @@ class Api::V1::ViewingPartiesController < ApplicationController
 
     if viewing_party
       if viewing_party.users.exists?(id: new_invitee.id)
-        render json: { message: viewing_party.errors.full_messages[0], status: 422 }
+        render json: { message: "The new invitee was already invited to the viewing party", status: 422 }
       else
         UserViewingParty.create(user_id: new_invitee.id, viewing_party_id: viewing_party.id, host: false)
         serialized_invitee = InviteeSerializer.serialize_invitee(new_invitee)
@@ -77,6 +90,6 @@ class Api::V1::ViewingPartiesController < ApplicationController
   private
 
   def viewing_party_params
-    params.require(:viewing_party).permit(:name, :start_time, :end_time, :movie_id, :movie_title, invitees: [])
+    params.permit(:name, :start_time, :end_time, :movie_id, :movie_title, invitees: [])
   end
 end
