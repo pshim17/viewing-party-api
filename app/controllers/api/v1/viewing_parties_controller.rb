@@ -50,6 +50,22 @@ class Api::V1::ViewingPartiesController < ApplicationController
     end
   end
 
+  def invitees
+    viewing_party = ViewingParty.find_by(id: params[:viewing_party_id].to_i)
+    invitee_id = params[:invitees_user_id]
+    new_invitee = User.find(invitee_id)
+
+    if viewing_party
+      if viewing_party.users.exists?(id: new_invitee.id)
+        render json: { message: viewing_party.errors.full_messages[0], status: 422 }
+      else
+        UserViewingParty.create(user_id: new_invitee.id, viewing_party_id: viewing_party.id, host: false)
+        serialized_invitee = InviteeSerializer.serialize_invitee(new_invitee)
+        render json: ViewingPartySerializer.new(viewing_party), status: :created
+      end
+    end
+  end
+
   private
 
   def viewing_party_params
