@@ -44,7 +44,7 @@ class Api::V1::ViewingPartiesController < ApplicationController
             next
           end
 
-          viewer = User.find_by(id: invitee)
+          viewer = User.all.find_by(id: invitee.to_i)
 
           if viewer
             UserViewingParty.create(user_id: viewer.id, viewing_party_id: viewing_party.id, host: false)
@@ -52,8 +52,9 @@ class Api::V1::ViewingPartiesController < ApplicationController
             inviteeInfo[:id] = viewer.id
             inviteeInfo[:name] = viewer.name
             inviteeInfo[:username] = viewer.username
-
             inviteesArray.push(inviteeInfo)
+          else 
+            next
           end
         end
       end
