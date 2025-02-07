@@ -1,17 +1,19 @@
+require './app/gateways/viewing_party_gateway'
+
 class Api::V1::ViewingPartiesController < ApplicationController
   def create    
     inviteesArray = [];
     viewing_party = ViewingParty.new(viewing_party_params)
-    movie_runtime = fetch_movie(viewing_party.movie_id)
+    movie_runtime = ViewingPartyGateway.get_movie_runtime(viewing_party["movie_id"])
 
     viewing_party_duration = (viewing_party.end_time.to_i - viewing_party.start_time.to_i) / 60
     
     if viewing_party.end_time < viewing_party.start_time
-      return render json: { message: "Party end time cannot be before the start time", status: 422 }
+      return render json: ErrorSerializer.format_error(ErrorMessage.new("Party end time cannot be before the start time", 400)), status: :bad_request
     end
 
     if viewing_party_duration < movie_runtime
-      return render json: { message: "Party duration cannot be less than movie runtime", status: 422 }
+      return render json: ErrorSerializer.format_error(ErrorMessage.new("Party duration cannot be less than movie runtime", 422)), status: :unprocessable_entity
     end
     
     if viewing_party.save
@@ -41,24 +43,8 @@ class Api::V1::ViewingPartiesController < ApplicationController
             inviteesArray.push(inviteeInfo)
           end
         end
-      else 
-        inviteesArray = [];
       end
-
-      render json: { 
-        data: {
-          "id": viewing_party.id,
-          "type": "viewing_party",
-          "attributes": {
-            "name": viewing_party.name,
-            "start_time": viewing_party.start_time,
-            "end_time": viewing_party.end_time,
-            "movie_id": viewing_party.movie_id,
-            "movie_title": viewing_party.movie_title,
-            "invitees": inviteesArray
-          }
-        } 
-      }, status: :created
+      render json: ViewingPartySerializer.new(viewing_party), status: :created
     else
       render json: { message: viewing_party.errors.full_messages[0], status: 422 }
     end
@@ -68,17 +54,5 @@ class Api::V1::ViewingPartiesController < ApplicationController
 
   def viewing_party_params
     params.require(:viewing_party).permit(:name, :start_time, :end_time, :movie_id, :movie_title, invitees: [])
-  end
-
-  def fetch_movie(movie_id)
-    conn = Faraday.new(url: "https://api.themoviedb.org/3")
-    response = conn.get("movie/#{movie_id}") do |faraday|
-      faraday.params["api_key"] = Rails.application.credentials.tmdb[:key]
-    end
-
-    if response.success?
-      movie_runtime = JSON.parse(response.body)["runtime"]
-      return movie_runtime
-    end
   end
 end
