@@ -44,21 +44,7 @@ class Api::V1::ViewingPartiesController < ApplicationController
       else 
         inviteesArray = [];
       end
-
-      render json: { 
-        data: {
-          "id": viewing_party.id,
-          "type": "viewing_party",
-          "attributes": {
-            "name": viewing_party.name,
-            "start_time": viewing_party.start_time,
-            "end_time": viewing_party.end_time,
-            "movie_id": viewing_party.movie_id,
-            "movie_title": viewing_party.movie_title,
-            "invitees": inviteesArray
-          }
-        } 
-      }, status: :created
+      render json: ViewingPartySerializer.new(viewing_party), status: :created
     else
       render json: { message: viewing_party.errors.full_messages[0], status: 422 }
     end
