@@ -55,6 +55,14 @@ class Api::V1::ViewingPartiesController < ApplicationController
     invitee_id = params[:invitees_user_id]
     new_invitee = User.find(invitee_id)
 
+    if viewing_party.nil?
+      return render json: { error: "Viewing party not found" }, status: :not_found
+    end
+  
+    if new_invitee.nil?
+      return render json: { error: "User not found" }, status: :not_found
+    end
+
     if viewing_party
       if viewing_party.users.exists?(id: new_invitee.id)
         render json: { message: viewing_party.errors.full_messages[0], status: 422 }
