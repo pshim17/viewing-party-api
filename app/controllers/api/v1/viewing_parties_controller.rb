@@ -1,8 +1,10 @@
+require './app/gateways/viewing_party_gateway'
+
 class Api::V1::ViewingPartiesController < ApplicationController
   def create    
     inviteesArray = [];
     viewing_party = ViewingParty.new(viewing_party_params)
-    movie_runtime = ViewingPartyGateWay.get_movie_runtime(viewing_party.movie_id)
+    movie_runtime = ViewingPartyGateway.get_movie_runtime(viewing_party["movie_id"])
 
     viewing_party_duration = (viewing_party.end_time.to_i - viewing_party.start_time.to_i) / 60
     
@@ -11,7 +13,7 @@ class Api::V1::ViewingPartiesController < ApplicationController
     end
 
     if viewing_party_duration < movie_runtime
-      return render json: ErrorSerializer.format_error(ErrorMessage.new("Party duration cannot be less than movie runtime", 422)), status: :unproccessable_entity
+      return render json: ErrorSerializer.format_error(ErrorMessage.new("Party duration cannot be less than movie runtime", 422)), status: :unprocessable_entity
     end
     
     if viewing_party.save
@@ -41,8 +43,6 @@ class Api::V1::ViewingPartiesController < ApplicationController
             inviteesArray.push(inviteeInfo)
           end
         end
-      else 
-        inviteesArray = [];
       end
       render json: ViewingPartySerializer.new(viewing_party), status: :created
     else
