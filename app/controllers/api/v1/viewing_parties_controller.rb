@@ -41,6 +41,8 @@ class Api::V1::ViewingPartiesController < ApplicationController
             inviteesArray.push(inviteeInfo)
           end
         end
+      else 
+        inviteesArray = [];
       end
 
       render json: { 
