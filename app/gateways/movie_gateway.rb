@@ -5,20 +5,10 @@ class MovieGateway
   end
 
   def self.get_movie_by_search_term(search_term)
-    query = params[:query]
     response = conn.get("search/movie") do |faraday| 
       faraday.params["query"] = search_term
     end
-    JSON.parse(response.body)["results"].first(20).map do |movie|
-      {
-        "id": movie["id"],
-        "type": "movie",
-        "attributes": {
-          "title": movie["title"],
-          "vote_average": movie["vote_average"]
-        } 
-      }  
-    end
+    JSON.parse(response.body)["results"].first(20)
   end
 
   private
