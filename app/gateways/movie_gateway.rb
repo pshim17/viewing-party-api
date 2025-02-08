@@ -75,7 +75,7 @@ class MovieGateway
     reviews_json["results"].map do |result|
       reviews_info = {}
       reviews_info["author"] = result["author"]
-      reviews_info["review"] = result["content"].gsub(/\s+/, ' ').strip
+      reviews_info["review"] = result["content"].gsub(/\r\n/, " ").gsub(/<\/?[^>]*>/, "").strip
       reviews_array << reviews_info
     end
     return reviews_array.first(5)
