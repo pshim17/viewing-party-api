@@ -20,17 +20,17 @@ RSpec.describe "Movies API", type: :request do
           expect(response).to have_http_status(:ok)
           json = JSON.parse(response.body, symbolize_names: true)
 
-          expect(json[:data]).to be_an(Array)
-          expect(json[:data].first[:type]).to eq("movie")
-          expect(json[:data].first[:id]).to be_present
-          expect(json[:data].first[:attributes][:title]).to eq("The Lord of the Rings: The War of the Rohirrim")
-          expect(json[:data].first[:attributes][:vote_average]).to eq(6.7)
+          expect(json).to be_an(Array)
+          expect(json.first[:type]).to eq("movie")
+          expect(json.first[:id]).to be_present
+          expect(json.first[:attributes][:title]).to eq("Forging Through the Darkness: The Ralph Bakshi Vision for 'The Lord of the Rings'")
+          expect(json.first[:attributes][:vote_average]).to eq(10.0)
 
-          expect(json[:data]).to be_an(Array)
-          expect(json[:data].last[:type]).to eq("movie")
-          expect(json[:data].last[:id]).to be_present
-          expect(json[:data].last[:attributes][:title]).to eq("The Making of The Fellowship of the Ring")
-          expect(json[:data].last[:attributes][:vote_average]).to eq(8.9)
+          expect(json).to be_an(Array)
+          expect(json.last[:type]).to eq("movie")
+          expect(json.last[:id]).to be_present
+          expect(json.last[:attributes][:title]).to eq("Lord of the Rings: The Hunt for Gollum")
+          expect(json.last[:attributes][:vote_average]).to eq(0.0)
         end
       end
     end
