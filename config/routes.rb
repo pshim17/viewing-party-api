@@ -17,6 +17,7 @@ Rails.application.routes.draw do
       resources :movies, only: [:index] do 
         collection do
           get "search"
+          get "details"
         end
       end
     end
