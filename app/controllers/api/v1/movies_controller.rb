@@ -7,7 +7,8 @@ class Api::V1::MoviesController < ApplicationController
   def search 
     search_term = params[:query]
     search_movies = MovieGateway.get_movie_by_search_term(search_term)
-    render json: MovieSerializer.serialize_movie(search_movies)
+    serialized_movies = MovieSerializer.serialize_movie(search_movies) 
+    render json: serialized_movies[:data].sort_by { |movie| movie[:attributes][:vote_average] }.reverse
   end
 
   def details 
