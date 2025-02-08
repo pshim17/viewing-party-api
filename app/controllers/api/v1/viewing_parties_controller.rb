@@ -14,6 +14,9 @@ class Api::V1::ViewingPartiesController < ApplicationController
       return render json: ErrorSerializer.format_error(ErrorMessage.new("Missing required field(s): #{missing_fields.join(', ')}", 400)), status: :bad_request
     end
 
+    start_time = DateTime.parse(params[:start_time]) 
+    end_time = DateTime.parse(params[:end_time])
+
     viewing_party_duration = viewing_party_duration(viewing_party)
 
     if viewing_party.end_time < viewing_party.start_time
@@ -26,36 +29,11 @@ class Api::V1::ViewingPartiesController < ApplicationController
     
     if viewing_party.save
       if params[:invitees].present?
-        host = params[:invitees].first
-
-        if User.exists?(id: host)
-          UserViewingParty.create(user_id: host, viewing_party_id: viewing_party.id, host: true)
-        end
-
-        params[:invitees].map do |invitee|
-          inviteeInfo = {};
-
-          if invitee == host
-            next
-          end
-
-          viewer = User.all.find_by(id: invitee.to_i)
-
-          if viewer
-            UserViewingParty.create(user_id: viewer.id, viewing_party_id: viewing_party.id, host: false)
-
-            inviteeInfo[:id] = viewer.id
-            inviteeInfo[:name] = viewer.name
-            inviteeInfo[:username] = viewer.username
-            inviteesArray.push(inviteeInfo)
-          else 
-            next
-          end
-        end
+        handle_invitees(params[:invitees], viewing_party)
       end
       return render json: ViewingPartySerializer.new(viewing_party), status: :created
     else
-      return render json: { message: viewing_party.errors.full_messages[0], status: 422 }
+      return render json: ErrorSerializer.format_error(ErrorMessage.new(viewing_party.errors.full_messages[0], 422)), status: :unprocessable_entity
     end
   end
 
@@ -91,5 +69,23 @@ class Api::V1::ViewingPartiesController < ApplicationController
 
   def viewing_party_duration(viewing_party)
     (viewing_party.end_time.to_i - viewing_party.start_time.to_i) / 60
+  end
+
+  def handle_invitees(invitees, viewing_party)
+    host = invitees.first
+  
+    if User.exists?(id: host)
+      UserViewingParty.create(user_id: host, viewing_party_id: viewing_party.id, host: true)
+    end
+  
+    invitees.each do |invitee|
+      next if invitee == host
+  
+      viewer = User.all.find_by(id: invitee.to_i)
+  
+      if viewer
+        UserViewingParty.create(user_id: viewer.id, viewing_party_id: viewing_party.id, host: false)
+      end
+    end
   end
 end
