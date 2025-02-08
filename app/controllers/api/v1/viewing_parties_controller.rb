@@ -40,14 +40,15 @@ class Api::V1::ViewingPartiesController < ApplicationController
   def invitees
     viewing_party = ViewingParty.find_by(id: params[:viewing_party_id].to_i)
     invitee_id = params[:invitees_user_id]
-    new_invitee = User.find(invitee_id)
-
-    if viewing_party.nil?
-      return render json: { error: "Viewing party not found" }, status: :not_found
-    end
+    
+    new_invitee = User.find_by(id: invitee_id)
   
     if new_invitee.nil?
-      return render json: { error: "User not found" }, status: :not_found
+      return render json: ErrorSerializer.format_error(ErrorMessage.new("User not found", 422)), status: :unprocessable_entity
+    end
+
+    if viewing_party.nil?
+      return render json: ErrorSerializer.format_error(ErrorMessage.new("Viewing party not found", 422)), status: :unprocessable_entity
     end
 
     if viewing_party
