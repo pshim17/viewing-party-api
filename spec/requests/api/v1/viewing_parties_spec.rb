@@ -139,7 +139,7 @@ RSpec.describe "Api::V1::ViewingParties", type: :request do
     end
 
     context "Invalid viewing party id" do
-      it "returns 404 error" do
+      it "returns 422 error" do
         post api_v1_viewing_parties_path, params: {   
           "name": "David's Bday Movie Bash!",
           "start_time": "2025-02-01 11:00:00",
@@ -156,12 +156,12 @@ RSpec.describe "Api::V1::ViewingParties", type: :request do
         post api_v1_viewing_party_invitees_path(viewing_party_id: viewing_party_id), params: { invitees_user_id: 3 }, as: :json
         re_json = JSON.parse(response.body, symbolize_names: true)
 
-        expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
     context "Invalid user id" do
-      it "returns 404 error" do
+      it "returns 422 error" do
         post api_v1_viewing_parties_path, params: {   
           "name": "David's Bday Movie Bash!",
           "start_time": "2025-02-01 11:00:00",
@@ -178,7 +178,30 @@ RSpec.describe "Api::V1::ViewingParties", type: :request do
         post api_v1_viewing_party_invitees_path(viewing_party_id: viewing_party_id), params: { invitees_user_id: 4 }, as: :json
         re_json = JSON.parse(response.body, symbolize_names: true)
 
-        expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context "Invalid new invitee id" do
+      it "returns 422 error" do
+        post api_v1_viewing_parties_path, params: {   
+          "name": "David's Bday Movie Bash!",
+          "start_time": "2025-02-01 11:00:00",
+          "end_time": "2025-02-01 14:30:00",
+          "movie_id": 278,
+          "movie_title": "The Shawshank Redemption",
+          "invitees": [ 1, 2 ] 
+        }
+        json = JSON.parse(response.body, symbolize_names: true)
+        viewing_party_id = json[:data][:id].to_i
+
+        expect(json[:data][:attributes][:invitees].count).to eq(2) 
+
+        post api_v1_viewing_party_invitees_path(viewing_party_id: viewing_party_id), params: { invitees_user_id: 777777 }, as: :json
+        re_json = JSON.parse(response.body, symbolize_names: true)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(re_json[:message]).to eq("User not found")
       end
     end
   end
