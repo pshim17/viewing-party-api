@@ -17,9 +17,8 @@ class Api::V1::UsersController < ApplicationController
     user = User.find_by(id: params["id"])
 
     if user      
-      require'pry';binding.pry
-
       viewing_parties = UserGateway.get_viewing_parties_invited(user.id)
+      
       render json: {
         data: {
           "id": user.id.to_s,
